@@ -65,6 +65,10 @@ from .media.source_captions import (
 from .media.speaker_framing import (
     build_clip_speaker_turns,
 )
+from .media.music import (
+    mix_background_music,
+    pick_music_track,
+)
 from .media.ffmpeg import (
     build_audio_output_args,
     NO_CHAPTERS,
@@ -279,6 +283,7 @@ def create_optimized_clip(
     broll_overlays: Optional[List[Dict[str, Any]]] = None,
     output_offsets: Optional[List[float]] = None,
     point_labels: Optional[List[Dict[str, Any]]] = None,
+    background_music: Optional[bool] = None,
 ) -> bool:
     """Create clip with optional subtitles. output_format: 'vertical' (9:16) or 'original' (keep source size).
 
@@ -293,8 +298,16 @@ def create_optimized_clip(
 
     ``point_labels`` are a recap's on-screen points ({"text", "start"} on the
     clip timeline), burned in with the captions.
+
+    ``background_music`` mixes a track from ``backend/music`` under the speech.
+    None follows the ``BACKGROUND_MUSIC`` setting.
     """
     try:
+        music_track = (
+            pick_music_track(output_path.name)
+            if (get_config().background_music if background_music is None else background_music)
+            else None
+        )
         labels_kwargs = {"point_labels": point_labels} if point_labels else {}
         if keep_ranges:
             effective_keep_ranges = normalize_source_ranges(keep_ranges)
@@ -342,6 +355,7 @@ def create_optimized_clip(
             and not hook_title
             and not point_labels
             and not broll_overlays
+            and not music_track
             and keep_original
             and len(effective_keep_ranges) == 1
             and (output_offsets is None or len(output_offsets) == 1)
@@ -500,6 +514,14 @@ def create_optimized_clip(
                 layout_report["broll_applied"] = broll_applied
             if not framed_ok:
                 raise RuntimeError("ffmpeg reframe render failed")
+
+            scored_clip_path = temp_root / "scored.mp4"
+            if music_track and mix_background_music(
+                final_clip_path, music_track, scored_clip_path, get_config().background_music_db
+            ):
+                final_clip_path = scored_clip_path
+            if layout_report is not None and music_track:
+                layout_report["music_track"] = music_track.name if final_clip_path == scored_clip_path else None
 
             shutil.move(str(final_clip_path), str(output_path))
             logger.info(f"Successfully created clip with ffmpeg: {output_path}")

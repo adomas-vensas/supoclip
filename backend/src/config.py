@@ -305,6 +305,9 @@ class Config:
         self.hook_first_teaser = self._get_bool_env("HOOK_FIRST_TEASER", False)
         # Cut between speakers on multi-person wide shots using diarization.
         self.speaker_framing = self._get_bool_env("SPEAKER_FRAMING", True)
+        # Mix a royalty-free track from backend/music under every generated clip.
+        self.background_music = self._get_bool_env("BACKGROUND_MUSIC", False)
+        self.background_music_db = min(0.0, self._get_float_env("BACKGROUND_MUSIC_DB", -20.0))
 
     def max_youtube_video_duration_for_plan(
         self,

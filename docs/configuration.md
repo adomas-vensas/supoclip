@@ -176,11 +176,14 @@ Current code and defaults emphasize a `fast` mode. If you expose additional mode
 | Variable | Default | Purpose |
 |---|---|---|
 | `PEXELS_API_KEY` | unset | Enables AI B-roll sourcing from Pexels |
+| `BACKGROUND_MUSIC` | `false` | Mixes a track from `backend/music/` under every generated clip, ducked under speech |
+| `BACKGROUND_MUSIC_DB` | `-20` | Music level in dB before ducking (0 or lower) |
 
-Fonts and transitions are configured by mounted files rather than environment variables:
+Fonts, transitions and music are configured by mounted files rather than environment variables:
 
 - Add `.ttf` or `.otf` files to `backend/fonts/`
 - Add transition `.mp4` files to `backend/transitions/`
+- Add royalty-free tracks to `backend/music/`, or run `uv run python scripts/generate_music_bed.py` in `backend/` for original beds (see `backend/music/README.md`)
 
 ## Redis and Database Settings
 
