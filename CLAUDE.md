@@ -277,6 +277,7 @@ APIFY_EXPENSIVE_FALLBACKS=false      # Skip high-cap Apify fallback actors
 PEXELS_API_KEY=...                   # B-roll stock footage
 BACKGROUND_MUSIC=false               # Mix a backend/music track under clips, ducked under speech
 BACKGROUND_MUSIC_DB=-20              # Music level before ducking
+RETENTION_EDITS=false                # Punch-in zooms on new phrases (vertical clips), under the captions
 YOUTUBE_OAUTH_CLIENT_ID=...          # Social publishing: Google OAuth client (+ _SECRET)
 TIKTOK_CLIENT_KEY=...                # Social publishing: TikTok app (+ TIKTOK_CLIENT_SECRET)
 TIKTOK_APP_AUDITED=false             # true only after TikTok's audit; unaudited = private posts from private accounts

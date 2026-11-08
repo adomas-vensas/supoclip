@@ -69,6 +69,10 @@ from .media.music import (
     mix_background_music,
     pick_music_track,
 )
+from .media.retention import (
+    punch_in_filter,
+    punch_in_windows,
+)
 from .media.ffmpeg import (
     build_audio_output_args,
     NO_CHAPTERS,
@@ -284,6 +288,7 @@ def create_optimized_clip(
     output_offsets: Optional[List[float]] = None,
     point_labels: Optional[List[Dict[str, Any]]] = None,
     background_music: Optional[bool] = None,
+    retention_edits: Optional[bool] = None,
 ) -> bool:
     """Create clip with optional subtitles. output_format: 'vertical' (9:16) or 'original' (keep source size).
 
@@ -301,6 +306,9 @@ def create_optimized_clip(
 
     ``background_music`` mixes a track from ``backend/music`` under the speech.
     None follows the ``BACKGROUND_MUSIC`` setting.
+
+    ``retention_edits`` adds punch-in zooms on new phrases so vertical frames
+    change every few seconds. None follows the ``RETENTION_EDITS`` setting.
     """
     try:
         music_track = (
@@ -491,6 +499,17 @@ def create_optimized_clip(
                     font_family or get_template(caption_template)["font_family"]
                 )
 
+            punch_in = None
+            if reframe_format != "original" and (
+                get_config().retention_edits if retention_edits is None else retention_edits
+            ):
+                clip_words = get_words_for_keep_ranges(
+                    load_cached_transcript_data(video_path), effective_keep_ranges, output_offsets
+                )
+                punch_in = punch_in_filter(punch_in_windows(clip_words, ffprobe_duration(source_clip_path)))
+                if layout_report is not None:
+                    layout_report["punch_in"] = bool(punch_in)
+
             def render(overlays):
                 return render_reframed_clip_ffmpeg(
                     source_clip_path,
@@ -502,6 +521,7 @@ def create_optimized_clip(
                     speaker_words=speaker_words,
                     vertical_plan=vertical_plan,
                     broll_overlays=overlays,
+                    punch_in=punch_in,
                 )[0]
 
             framed_ok = render(broll_overlays)

@@ -308,6 +308,8 @@ class Config:
         # Mix a royalty-free track from backend/music under every generated clip.
         self.background_music = self._get_bool_env("BACKGROUND_MUSIC", False)
         self.background_music_db = min(0.0, self._get_float_env("BACKGROUND_MUSIC_DB", -20.0))
+        # Punch-in zooms on new phrases so vertical clips change frame every few seconds.
+        self.retention_edits = self._get_bool_env("RETENTION_EDITS", False)
 
     def max_youtube_video_duration_for_plan(
         self,

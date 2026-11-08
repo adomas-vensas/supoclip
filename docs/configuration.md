@@ -178,6 +178,7 @@ Current code and defaults emphasize a `fast` mode. If you expose additional mode
 | `PEXELS_API_KEY` | unset | Enables AI B-roll sourcing from Pexels |
 | `BACKGROUND_MUSIC` | `false` | Mixes a track from `backend/music/` under every generated clip, ducked under speech |
 | `BACKGROUND_MUSIC_DB` | `-20` | Music level in dB before ducking (0 or lower) |
+| `RETENTION_EDITS` | `false` | Adds a 10% punch-in zoom that toggles on new phrases, so vertical clips change frame every 2.5–4 seconds. Captions are not zoomed |
 
 Fonts, transitions and music are configured by mounted files rather than environment variables:
 

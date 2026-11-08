@@ -1668,6 +1668,7 @@ def render_reframed_clip_ffmpeg(
     vertical_plan: Optional[Tuple[str, str]] = None,
     speaker_plan: Optional[Dict[str, Any]] = None,
     broll_overlays: Optional[List[Dict[str, Any]]] = None,
+    punch_in: Optional[str] = None,
 ) -> Tuple[bool, int, int]:
     """Render the final framed clip and (optionally) burn subtitles in one pass.
 
@@ -1675,7 +1676,8 @@ def render_reframed_clip_ffmpeg(
     generation of re-encode loss. The pass uses the high-quality profile, CFR
     output and loudness-normalised audio. ``broll_overlays`` (path, start and
     duration on the clip timeline) are composited over the framed picture and
-    under the captions.
+    under the captions. ``punch_in`` is a filter applied to vertical output
+    before the captions, so zooms never scale the burned-in text.
     """
     width, height = ffprobe_video_size(input_path)
     has_audio = ffprobe_has_audio(input_path)
@@ -1684,6 +1686,8 @@ def render_reframed_clip_ffmpeg(
         if subtitle_ass_path
         else None
     )
+    if punch_in and output_format != "original":
+        subs = ",".join(part for part in (punch_in, subs) if part)
     audio_args = build_audio_output_args(has_audio)
     overlays = (
         normalize_broll_overlays(broll_overlays, ffprobe_duration(input_path))
